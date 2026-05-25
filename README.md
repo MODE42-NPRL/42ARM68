@@ -1,2 +1,8 @@
 # 42ARM68
-42ARM68: 42/OS Emulator Solution #1
+* 42ARM68: 42/OS Emulator Solution #1(first hybrid emulator works of Mode42)<br>
+<br>
+Primary intended for CPU/RTG and PCI use via PiStorm Hardware.<br>
+<br>
+Currently, only adjustments are being made.<br>
+New Files/Code are NPRL-License Data/Material.<br>
+The original Foundation Software is Mozilla Public License 2.0 (MPL 2.0) released.<br>
