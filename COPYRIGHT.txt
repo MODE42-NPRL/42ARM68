@@ -1,0 +1,4 @@
+Notes:
+New Files/Code are NPRL-License Data/Material.<br>
+The most of the main Foundation Software is Mozilla Public License 2.0 (MPL 2.0) released.<br>
+Every sub-Directory has a LICENSE.txt included for its Condititons and Terms by layout.
