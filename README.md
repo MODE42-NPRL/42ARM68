@@ -1,5 +1,5 @@
-# 42ARM68
-* 42ARM68: 42/OS Emulator Solution #1(first hybrid emulator works of Mode42)<br>
+# 42ARM68 for 42/OS
+42ARM68: 42/OS Emulator Solution #1(first hybrid emulator works of Mode42)<br>
 Primary intended for CPU/RTG and PCI use via PiStorm Hardware.<br>
 <br>
 Currently, only adjustments are being made.<br>
