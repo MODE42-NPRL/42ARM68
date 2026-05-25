@@ -1,8 +1,0 @@
-Build from Source:
-First: Copy the file stubs-lp64.h as/to stubs-lp64_be.h (Note: Version of the Compiler can be important)
-cmake .. -DCMAKE_INSTALL_PREFIX=../install(32lite) -DTARGET=raspi64 -DVARIANT=pistorm(32lite)
-@cross-compileing add/modify: -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-linux-gnu.cmake
-
-Build from Binaries:
-Extract the archive to a FAT16/32 formated boot-able Media/Drive
-Now, Edit config.txt and cmdline.txt to the needs.
