@@ -1,8 +1,8 @@
 # 42ARM68 for 42/OS
 42ARM68: 42/OS Emulator Solution<br>
-Primary intended for CPU/RTG and PCI use via PiStorm/Compatible Hardware.<br>
-AIO-Source/Binary Format without extra Downloads and focused at "Raspberry Pi" as Service-Technology.<br>
-<br>
-Currently, (only) adjustments are being made.<br>
-Note: This Software/Code in "Main"-Branch is current_state-of-art_experimental. Thanks!<br>
 
+This Branch/Repository can be build and used as-is without any warranty/support or similars.<br>
+42ARM68 is for and stays for 42/OS and Mode42 Products.<br>
+<br>
+Please use Emu68 for all other Operating Systems excepted 42/OS, Thanks.<br>
+Next freeze002 should the Boot.rom hardcoded and more 42/OS related build-ins/etc.<br>
