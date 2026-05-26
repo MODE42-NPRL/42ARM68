@@ -20,6 +20,11 @@ set(ARM68_INSTALL_DIR "${ARM68_REPO_ROOT}/bin" CACHE PATH
 
 # Both PiStorm variants are always built (see arm68_variant.cmake).
 
+# Native Raspberry Pi: little-endian AArch64 firmware (default).
+# Upstream Emu68 CMake uses -mbig-endian for cross/legacy builds only.
+set(ARM64_BIG_ENDIAN OFF CACHE BOOL
+    "Build AArch64 firmware as big-endian ELF (OFF = native Pi little-endian)")
+
 # Propagate 42ARM68 version to the whole tree (version.h, compile definitions).
 set(PROJECT_VERSION "${PROJECT_VERSION}" CACHE STRING "42ARM68 project version" FORCE)
 

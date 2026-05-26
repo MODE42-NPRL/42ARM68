@@ -117,7 +117,7 @@ set(ARM68_EMU68_FILES
     ${EMU68_ROOT}/src/math/96bit.c
 )
 
-set(ARM68_OVERLAY_SOURCES "")
+set(ARM68_PPC_STUBS "")
 
 if(ARM68_ENABLE_PPC)
     list(APPEND ARM68_EMU68_FILES
@@ -131,10 +131,7 @@ if(ARM68_ENABLE_PPC)
         ${EMU68_ROOT}/src/LRUCache.cpp
         ${EMU68_ROOT}/src/ReturnStack.cpp)
 else()
-    add_library(arm68_ppc_stubs STATIC ${ARM68_OVERLAY_DIR}/src/ppc_stubs.cpp)
-    target_include_directories(arm68_ppc_stubs PUBLIC ${EMU68_ROOT}/include)
-    target_compile_options(arm68_ppc_stubs PRIVATE
-        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>)
+    set(ARM68_PPC_STUBS ${ARM68_OVERLAY_DIR}/src/ppc_stubs.cpp)
     message(STATUS "42ARM68: PowerPC support disabled (ARM68_ENABLE_PPC=OFF)")
 endif()
 
@@ -197,7 +194,17 @@ set(ARM68_ARCH_FILES
 
 set(ARM68_LINKER_SCRIPT ${EMU68_ROOT}/scripts/ldscript-be64.lds)
 
-add_compile_options(-mbig-endian -fno-exceptions -fno-unwind-tables -fno-stack-protector
+if(ARM64_BIG_ENDIAN)
+    set(ARM68_ENDIAN_FLAG -mbig-endian)
+    set(ARM68_LINK_ELF_FLAGS -Wl,-EB -Wl,--format=elf64-bigaarch64)
+    message(STATUS "42ARM68: AArch64 big-endian firmware (legacy/cross)")
+else()
+    set(ARM68_ENDIAN_FLAG "")
+    set(ARM68_LINK_ELF_FLAGS "")
+    message(STATUS "42ARM68: AArch64 little-endian firmware (native Raspberry Pi)")
+endif()
+
+add_compile_options(${ARM68_ENDIAN_FLAG} -fno-exceptions -fno-unwind-tables -fno-stack-protector
     -fno-asynchronous-unwind-tables -fno-pic -fno-pie -no-pie -ffreestanding -Wall -Wextra -Werror
     -falign-functions=32 -march=armv8-a+crc -mtune=cortex-a76 -fomit-frame-pointer -O3 -ffixed-x12)
 

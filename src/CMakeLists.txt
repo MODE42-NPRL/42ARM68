@@ -28,5 +28,8 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 file(MAKE_DIRECTORY "${ARM68_INSTALL_DIR}")
 
-include(cmake/arm64_be_probe.cmake)
+if(ARM64_BIG_ENDIAN)
+    include(cmake/arm64_be_probe.cmake)
+endif()
+
 include(cmake/emu68_build.cmake)
