@@ -1,28 +1,5 @@
 cmake_minimum_required(VERSION 3.14.0)
 
-# Prefer aarch64_be compiler when CC/CXX are not set (native Pi gcc-11 is LE-only).
-if(NOT CMAKE_TOOLCHAIN_FILE AND NOT DEFINED ENV{CC} AND NOT DEFINED ENV{CXX})
-    find_program(_ARM68_BE_GCC
-        NAMES
-            aarch64_be-linux-gnu-gcc-11
-            aarch64_be-linux-gnu-gcc-12
-            aarch64_be-linux-gnu-gcc-13
-            aarch64_be-none-linux-gnu-gcc
-            aarch64_be-linux-gnu-gcc)
-    find_program(_ARM68_BE_GXX
-        NAMES
-            aarch64_be-linux-gnu-g++-11
-            aarch64_be-linux-gnu-g++-12
-            aarch64_be-linux-gnu-g++-13
-            aarch64_be-none-linux-gnu-g++
-            aarch64_be-linux-gnu-g++)
-    if(_ARM68_BE_GCC AND _ARM68_BE_GXX)
-        set(CMAKE_C_COMPILER "${_ARM68_BE_GCC}" CACHE FILEPATH "AArch64 BE C compiler" FORCE)
-        set(CMAKE_CXX_COMPILER "${_ARM68_BE_GXX}" CACHE FILEPATH "AArch64 BE C++ compiler" FORCE)
-        message(STATUS "42ARM68: using big-endian compiler ${_ARM68_BE_GCC}")
-    endif()
-endif()
-
 # Out-of-source only:  cd src && cmake -B build && cmake --build build
 # Install to repo bin/:  cmake --build build --target arm68-install
 # src/build/ stays empty in git (CMake output only; see .gitignore).
@@ -52,6 +29,4 @@ endif()
 file(MAKE_DIRECTORY "${ARM68_INSTALL_DIR}")
 
 include(cmake/arm64_be_probe.cmake)
-arm68_verify_big_endian_toolchain()
-
 include(cmake/emu68_build.cmake)
