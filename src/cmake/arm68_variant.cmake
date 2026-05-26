@@ -57,7 +57,6 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${EMU68_ROOT}/external/tiny-stl/include
         ${EMU68_ROOT}/src/pistorm
         ${ARM68_OVERLAY_DIR}/rom
-        ${ARM68_GEN_DIR}
         ${CMAKE_BINARY_DIR}/include)
 
     add_dependencies(${_target}.elf arm68_gen)
