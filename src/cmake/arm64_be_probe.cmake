@@ -1,10 +1,9 @@
 # Verify AArch64 big-endian (-mbig-endian) like the Emu68 build (freestanding, no libc).
+# Matches:  gcc-11 -mbig-endian -ffreestanding -nostdlib -c -x c -
 
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
-# Freestanding only: Debian/Raspbian native gcc-11 (aarch64-linux-gnu) cannot use
-# -mbig-endian; Emu68 needs aarch64_be-linux-gnu-gcc or a bi-endian cross toolchain.
 set(_ARM68_BE_PROBE_FLAGS
     -mbig-endian
     -march=armv8-a+crc
@@ -23,6 +22,14 @@ set(_ARM68_BE_PROBE_SOURCE
     "int arm68_be_probe(void) { return 0; }\n")
 
 function(arm68_verify_big_endian_toolchain)
+    if(DEFINED CMAKE_TRY_COMPILE_TARGET_TYPE)
+        set(_arm68_saved_try_compile_type "${CMAKE_TRY_COMPILE_TARGET_TYPE}")
+    else()
+        set(_arm68_saved_try_compile_type "")
+    endif()
+    # Compile-only (no link): required for -nostdlib, same as gcc -c.
+    set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
     set(CMAKE_REQUIRED_FLAGS "${_ARM68_BE_PROBE_FLAGS}")
     set(CMAKE_REQUIRED_QUIET TRUE)
 
@@ -41,8 +48,14 @@ function(arm68_verify_big_endian_toolchain)
         endif()
     endif()
 
+    if(_arm68_saved_try_compile_type STREQUAL "")
+        unset(CMAKE_TRY_COMPILE_TARGET_TYPE)
+    else()
+        set(CMAKE_TRY_COMPILE_TARGET_TYPE "${_arm68_saved_try_compile_type}")
+    endif()
+
     if(ARM68_C_BE_COMPILES AND ARM68_CXX_BE_COMPILES)
-        message(STATUS "42ARM68: big-endian probe OK (-mbig-endian, freestanding)")
+        message(STATUS "42ARM68: big-endian probe OK (-mbig-endian, freestanding, compile-only)")
         message(STATUS "  C:   ${CMAKE_C_COMPILER}")
         message(STATUS "  CXX: ${CMAKE_CXX_COMPILER}")
         return()
@@ -56,12 +69,10 @@ function(arm68_verify_big_endian_toolchain)
         "  C:   ${CMAKE_C_COMPILER}\n"
         "  CXX: ${CMAKE_CXX_COMPILER}\n"
         "\n"
-        "Raspberry Pi OS gcc-11/g++-11 are aarch64 **little-endian** and do not support\n"
-        "-mbig-endian. Emu68 needs an **aarch64_be** toolchain, for example:\n"
-        "  • Arm GNU Toolchain: aarch64_be-none-linux-gnu (or aarch64_be-linux-gnu)\n"
-        "  • Then: cmake -DCMAKE_TOOLCHAIN_FILE=../src/toolchains/aarch64-be-gcc.cmake ..\n"
-        "    (unset CC/CXX, or set CC=aarch64_be-linux-gnu-gcc)\n"
-        "  • Or install aarch64_be-linux-gnu-gcc into PATH and omit CC=gcc-11\n"
+        "Quick host test (should succeed on Bookworm gcc-11):\n"
+        "  gcc-11 -mbig-endian -ffreestanding -nostdlib -c -x c - -o /dev/null <<<'int x;'\n"
         "\n"
-        "See CMakeError.log in the build directory for the compiler error text.")
+        "If that works but cmake fails, see CMakeFiles/CMakeError.log in the build dir.\n"
+        "Otherwise install an aarch64_be toolchain or use\n"
+        "  -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-be-gcc.cmake")
 endfunction()
