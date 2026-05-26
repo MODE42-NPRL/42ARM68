@@ -204,7 +204,7 @@ endif()
 
 configure_file(${EMU68_ROOT}/include/version.h.in ${CMAKE_BINARY_DIR}/include/version.h @ONLY)
 
-add_subdirectory(${EMU68_ROOT}/external ${CMAKE_BINARY_DIR}/emu68-external)
+include(${CMAKE_CURRENT_LIST_DIR}/emu68_external.cmake)
 
 # Shared install payload (once): firmware, config, overlays.
 install_raspi_firmware("${ARM68_RPI_FIRMWARE_DIR}")

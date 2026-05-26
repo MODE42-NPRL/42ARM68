@@ -51,7 +51,8 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${EMU68_ROOT}/src/pistorm
         ${CMAKE_BINARY_DIR}/include)
 
-    target_link_libraries(${_target}.elf PRIVATE capstone_static libdeflate_static)
+    target_link_libraries(${_target}.elf PRIVATE capstone-static libdeflate_static)
+    add_dependencies(${_target}.elf capstone-static libdeflate_static)
 
     target_link_options(${_target}.elf PRIVATE
         -Wl,--build-id -nostdlib -nostartfiles -static
