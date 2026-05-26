@@ -34,8 +34,7 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${ARM68_TARGET_FILES}
         ${ARM68_BASE_FILES}
         ${_variant_sources}
-        ${ARM68_EMU68_FILES}
-        ${ARM68_OVERLAY_SOURCES})
+        ${ARM68_EMU68_FILES})
 
     target_compile_options(${_target}.elf PRIVATE
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>)
@@ -52,8 +51,16 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${EMU68_ROOT}/src/pistorm
         ${CMAKE_BINARY_DIR}/include)
 
-    target_link_libraries(${_target}.elf PRIVATE capstone-static libdeflate_static tinystl)
+    if(ARM68_ENABLE_PPC)
+        set(_arm68_ext_libs capstone-static libdeflate_static tinystl)
+    else()
+        set(_arm68_ext_libs capstone-static libdeflate_static tinystl arm68_ppc_stubs)
+    endif()
+    target_link_libraries(${_target}.elf PRIVATE ${_arm68_ext_libs})
     add_dependencies(${_target}.elf capstone-static libdeflate_static tinystl)
+    if(NOT ARM68_ENABLE_PPC)
+        add_dependencies(${_target}.elf arm68_ppc_stubs)
+    endif()
 
     target_link_options(${_target}.elf PRIVATE
         -Wl,--build-id -nostdlib -nostartfiles -static

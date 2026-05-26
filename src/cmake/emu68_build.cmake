@@ -131,7 +131,10 @@ if(ARM68_ENABLE_PPC)
         ${EMU68_ROOT}/src/LRUCache.cpp
         ${EMU68_ROOT}/src/ReturnStack.cpp)
 else()
-    list(APPEND ARM68_OVERLAY_SOURCES ${ARM68_OVERLAY_DIR}/src/ppc_stubs.c)
+    add_library(arm68_ppc_stubs STATIC ${ARM68_OVERLAY_DIR}/src/ppc_stubs.cpp)
+    target_include_directories(arm68_ppc_stubs PUBLIC ${EMU68_ROOT}/include)
+    target_compile_options(arm68_ppc_stubs PRIVATE
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>)
     message(STATUS "42ARM68: PowerPC support disabled (ARM68_ENABLE_PPC=OFF)")
 endif()
 
