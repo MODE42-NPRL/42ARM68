@@ -48,11 +48,12 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
     target_include_directories(${_target}.elf PRIVATE
         ${EMU68_ROOT}/include
         ${EMU68_ROOT}/external/capstone/include
+        ${EMU68_ROOT}/external/tiny-stl/include
         ${EMU68_ROOT}/src/pistorm
         ${CMAKE_BINARY_DIR}/include)
 
-    target_link_libraries(${_target}.elf PRIVATE capstone-static libdeflate_static)
-    add_dependencies(${_target}.elf capstone-static libdeflate_static)
+    target_link_libraries(${_target}.elf PRIVATE capstone-static libdeflate_static tinystl)
+    add_dependencies(${_target}.elf capstone-static libdeflate_static tinystl)
 
     target_link_options(${_target}.elf PRIVATE
         -Wl,--build-id -nostdlib -nostartfiles -static

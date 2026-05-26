@@ -1,8 +1,6 @@
-/*
- * Empty PPC entry points when ARM68_ENABLE_PPC is OFF.
- * start.c still references InitPPC/StartupPPC when ppc_enable is set at runtime;
- * these stubs keep the link valid without building the PPC translator.
- */
+#include "spinlock.h"
+
+spinlock_t PPCStart;
 
 void InitPPC(void)
 {
@@ -10,4 +8,9 @@ void InitPPC(void)
 
 void StartupPPC(void)
 {
+}
+
+void PPCReportInterrupt(int interrupt)
+{
+    (void)interrupt;
 }

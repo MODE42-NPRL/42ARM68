@@ -42,6 +42,8 @@ add_subdirectory(${_arm68_ext}/capstone ${_arm68_ext_bin}/capstone EXCLUDE_FROM_
 
 add_subdirectory(${_arm68_ext}/libdeflate ${_arm68_ext_bin}/libdeflate EXCLUDE_FROM_ALL)
 
+add_subdirectory(${_arm68_ext}/tiny-stl ${_arm68_ext_bin}/tiny-stl EXCLUDE_FROM_ALL)
+
 if(NOT TARGET capstone-static)
     message(FATAL_ERROR "capstone-static was not created (check emu68/external/capstone)")
 endif()
