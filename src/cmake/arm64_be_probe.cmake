@@ -11,15 +11,17 @@ set(_ARM68_BE_PROBE_FLAGS
     -nostdlib
 )
 
-set(_ARM68_BE_PROBE_SOURCE
-    "#if !defined(__aarch64__)\n"
-    "# error \"42ARM68: compiler target is not AArch64\"\n"
-    "#endif\n"
-    "#if !(defined(__ARM_BIG_ENDIAN) || defined(__AARCH64EB__) \\\n"
-    "      || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))\n"
-    "# error \"42ARM68: -mbig-endian did not select a big-endian target\"\n"
-    "#endif\n"
-    "int arm68_be_probe(void) { return 0; }\n")
+# Bracket string: CMake must not split on newlines (check_* turns them into ';').
+set(_ARM68_BE_PROBE_SOURCE [=[
+#if !defined(__aarch64__)
+# error "42ARM68: compiler target is not AArch64"
+#endif
+#if !(defined(__ARM_BIG_ENDIAN) || defined(__AARCH64EB__) \
+      || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
+# error "42ARM68: -mbig-endian did not select a big-endian target"
+#endif
+int arm68_be_probe(void) { return 0; }
+]=])
 
 function(arm68_verify_big_endian_toolchain)
     if(DEFINED CMAKE_TRY_COMPILE_TARGET_TYPE)
@@ -27,7 +29,6 @@ function(arm68_verify_big_endian_toolchain)
     else()
         set(_arm68_saved_try_compile_type "")
     endif()
-    # Compile-only (no link): required for -nostdlib, same as gcc -c.
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
     set(CMAKE_REQUIRED_FLAGS "${_ARM68_BE_PROBE_FLAGS}")
@@ -72,7 +73,5 @@ function(arm68_verify_big_endian_toolchain)
         "Quick host test (should succeed on Bookworm gcc-11):\n"
         "  gcc-11 -mbig-endian -ffreestanding -nostdlib -c -x c - -o /dev/null <<<'int x;'\n"
         "\n"
-        "If that works but cmake fails, see CMakeFiles/CMakeError.log in the build dir.\n"
-        "Otherwise install an aarch64_be toolchain or use\n"
-        "  -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-be-gcc.cmake")
+        "If that works but cmake fails, see CMakeFiles/CMakeError.log in the build dir.")
 endfunction()
