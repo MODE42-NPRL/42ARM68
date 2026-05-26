@@ -185,16 +185,11 @@ set(ARM68_TARGET_FILES
     ${EMU68_ROOT}/src/raspi/support_rpi.c
     ${EMU68_ROOT}/src/raspi/topaz.c)
 
-set(ARM68_ARCH_FILES
-    ${EMU68_ROOT}/src/aarch64/start.c
-    ${EMU68_ROOT}/src/aarch64/mmu.c
-    ${EMU68_ROOT}/src/aarch64/RegisterAllocator64.c
-    ${EMU68_ROOT}/src/aarch64/vectors.c
-    ${EMU68_ROOT}/src/aarch64/intc.c)
-
 set(ARM68_LINKER_SCRIPT ${EMU68_ROOT}/scripts/ldscript-be64.lds)
 set(ARM68_ENDIAN_FLAG -mbig-endian)
 set(ARM68_LINK_ELF_FLAGS -Wl,-EB -Wl,--format=elf64-bigaarch64)
+
+include(${CMAKE_CURRENT_LIST_DIR}/arm68_kickstart.cmake)
 
 message(STATUS "42ARM68: AArch64 big-endian firmware (elf64-bigaarch64)")
 
@@ -215,7 +210,7 @@ install_raspi_firmware("${ARM68_RPI_FIRMWARE_DIR}")
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/scripts)
 configure_file(
-    ${EMU68_ROOT}/scripts/config_pistorm.txt
+    ${ARM68_OVERLAY_DIR}/scripts/config_pistorm.txt
     ${CMAKE_BINARY_DIR}/scripts/config.txt
     @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/scripts/config.txt DESTINATION .)

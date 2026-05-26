@@ -38,6 +38,7 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${ARM68_ARCH_FILES}
         ${ARM68_TARGET_FILES}
         ${ARM68_BASE_FILES}
+        ${ARM68_KICKSTART_SOURCES}
         ${_variant_sources}
         ${ARM68_EMU68_FILES}
         ${_ppc_stubs})
@@ -55,7 +56,11 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${EMU68_ROOT}/external/capstone/include
         ${EMU68_ROOT}/external/tiny-stl/include
         ${EMU68_ROOT}/src/pistorm
+        ${ARM68_OVERLAY_DIR}/rom
+        ${ARM68_GEN_DIR}
         ${CMAKE_BINARY_DIR}/include)
+
+    add_dependencies(${_target}.elf arm68_gen)
 
     target_link_libraries(${_target}.elf PRIVATE capstone-static libdeflate_static tinystl)
     add_dependencies(${_target}.elf capstone-static libdeflate_static tinystl)
