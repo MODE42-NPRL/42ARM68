@@ -12,6 +12,8 @@ install/
 *.ko
 *.obj
 *.elf
+# Raspberry Pi boot blobs in src/rpi-firmware (not linker output)
+!src/rpi-firmware/*.elf
 *.ilk
 *.map
 *.exp
