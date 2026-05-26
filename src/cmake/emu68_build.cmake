@@ -193,16 +193,10 @@ set(ARM68_ARCH_FILES
     ${EMU68_ROOT}/src/aarch64/intc.c)
 
 set(ARM68_LINKER_SCRIPT ${EMU68_ROOT}/scripts/ldscript-be64.lds)
+set(ARM68_ENDIAN_FLAG -mbig-endian)
+set(ARM68_LINK_ELF_FLAGS -Wl,-EB -Wl,--format=elf64-bigaarch64)
 
-if(ARM64_BIG_ENDIAN)
-    set(ARM68_ENDIAN_FLAG -mbig-endian)
-    set(ARM68_LINK_ELF_FLAGS -Wl,-EB -Wl,--format=elf64-bigaarch64)
-    message(STATUS "42ARM68: AArch64 big-endian firmware (legacy/cross)")
-else()
-    set(ARM68_ENDIAN_FLAG "")
-    set(ARM68_LINK_ELF_FLAGS "")
-    message(STATUS "42ARM68: AArch64 little-endian firmware (native Raspberry Pi)")
-endif()
+message(STATUS "42ARM68: AArch64 big-endian firmware (elf64-bigaarch64)")
 
 add_compile_options(${ARM68_ENDIAN_FLAG} -fno-exceptions -fno-unwind-tables -fno-stack-protector
     -fno-asynchronous-unwind-tables -fno-pic -fno-pie -no-pie -ffreestanding -Wall -Wextra -Werror

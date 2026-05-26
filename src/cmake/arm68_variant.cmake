@@ -42,7 +42,7 @@ function(arm68_add_pistorm_variant VARIANT INSTALL_IMAGE_NAME)
         ${ARM68_EMU68_FILES}
         ${_ppc_stubs})
 
-    target_compile_options(${_target}.elf PRIVATE
+    target_compile_options(${_target}.elf PRIVATE ${ARM68_ENDIAN_FLAG}
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>)
 
     target_compile_definitions(${_target}.elf PRIVATE

@@ -14,21 +14,13 @@ set_property(CACHE TARGET PROPERTY STRINGS ${SUPPORTED_TARGETS})
 set(ARM68_RPI_FIRMWARE_DIR "${ARM68_OVERLAY_DIR}/rpi-firmware" CACHE PATH
     "Local Raspberry Pi boot firmware (no download)")
 
-# Install destination: repo /bin (from src/build via cmake --install).
 set(ARM68_INSTALL_DIR "${ARM68_REPO_ROOT}/bin" CACHE PATH
     "Install directory for SD-card / release files")
 
-# Both PiStorm variants are always built (see arm68_variant.cmake).
+# 42ARM68: always AArch64 big-endian (matches upstream Emu68 and EMU68_HOST_BIG_ENDIAN).
 
-# Native Raspberry Pi: little-endian AArch64 firmware (default).
-# Upstream Emu68 CMake uses -mbig-endian for cross/legacy builds only.
-set(ARM64_BIG_ENDIAN OFF CACHE BOOL
-    "Build AArch64 firmware as big-endian ELF (OFF = native Pi little-endian)")
-
-# Propagate 42ARM68 version to the whole tree (version.h, compile definitions).
 set(PROJECT_VERSION "${PROJECT_VERSION}" CACHE STRING "42ARM68 project version" FORCE)
 
-# External / capstone tuning when PPC is disabled.
 if(NOT ARM68_ENABLE_PPC)
     set(CAPSTONE_PPC_SUPPORT OFF CACHE BOOL "" FORCE)
 endif()
