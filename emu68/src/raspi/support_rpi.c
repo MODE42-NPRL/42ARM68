@@ -15,7 +15,7 @@
 #include "mmu.h"
 #include "tlsf.h"
 
-#ifdef PISTORM
+#ifdef PISTORM_ANY_MODEL
 #include "ps_protocol.h"
 #endif
 
@@ -23,7 +23,7 @@ static int serial_up = 0;
 
 #define ARM_PERIIOBASE ((intptr_t)io_base)
 
-#ifdef PISTORM
+#ifdef PISTORM_ANY_MODEL
 
 uint8_t *q_buffer;
 volatile uint64_t q_head;
@@ -33,17 +33,17 @@ volatile uint64_t q_tail;
 void q_push(uint8_t data)
 {
     while(q_tail + Q_SIZE <= q_head)
-        asm volatile("yield");
+        __asm__ volatile("yield");
     
     q_buffer[q_head & (Q_SIZE - 1)] = data;
     __sync_add_and_fetch(&q_head, 1);
-    asm volatile("sev");
+    __asm__ volatile("sev");
 }
 
 uint8_t q_pop()
 {
     while (q_tail == q_head) {
-        asm volatile("wfe");
+        __asm__ volatile("wfe");
     }
 
     uint8_t data = q_buffer[q_tail & (Q_SIZE - 1)];
@@ -128,12 +128,27 @@ static inline void putByte(void *io_base, char chr)
 
 volatile unsigned char print_lock = 0;
 
+void __printf_chk(int, const char *restrict format, ...)
+{
+    va_list v;
+    va_start(v, format);
+
+    while (__atomic_test_and_set(&print_lock, __ATOMIC_ACQUIRE))
+        __asm__ volatile("yield");
+
+    vkprintf_pc(putByte, (void *)ARM_PERIIOBASE, format, v);
+
+    __atomic_clear(&print_lock, __ATOMIC_RELEASE);
+
+    va_end(v);
+}
+
 void kprintf(const char * restrict format, ...)
 {
     va_list v;
     va_start(v, format);
 
-    while(__atomic_test_and_set(&print_lock, __ATOMIC_ACQUIRE)) asm volatile("yield");
+    while(__atomic_test_and_set(&print_lock, __ATOMIC_ACQUIRE)) __asm__ volatile("yield");
 
     vkprintf_pc(putByte, (void*)ARM_PERIIOBASE, format, v);
 
@@ -144,7 +159,7 @@ void kprintf(const char * restrict format, ...)
 
 void vkprintf(const char * restrict format, va_list args)
 {
-    while(__atomic_test_and_set(&print_lock, __ATOMIC_ACQUIRE)) asm volatile("yield");
+    while(__atomic_test_and_set(&print_lock, __ATOMIC_ACQUIRE)) __asm__ volatile("yield");
 
     vkprintf_pc(putByte, (void*)ARM_PERIIOBASE, format, args);
 
@@ -335,6 +350,24 @@ struct Size get_display_size()
     return sz;
 }
 
+uint32_t enable_unicam_domain()
+{
+    FBReq[0] = LE32(4 * 8);      // Length
+    FBReq[1] = 0;                // Request
+    FBReq[2] = LE32(0x00038030); // SetClockRate
+    FBReq[3] = LE32(8);
+    FBReq[4] = 0;
+    FBReq[5] = LE32(14); // unicam1
+    FBReq[6] = LE32(1);
+    FBReq[7] = 0;
+
+    arm_flush_cache((intptr_t)FBReq, 32);
+    mbox_send(8, mmu_virt2phys((intptr_t)FBReq));
+    mbox_recv(8);
+
+    return LE32(FBReq[6]);
+}
+
 void init_display(struct Size dimensions, void **framebuffer, uint32_t *pitch)
 {
     int c = 1;
@@ -414,11 +447,12 @@ void init_display(struct Size dimensions, void **framebuffer, uint32_t *pitch)
 #define GPPUD                                           (GPIO_BASE + 0x94)
 #define GPPUDCLK0                                       (GPIO_BASE + 0x98)
 
-#ifdef PISTORM
+#ifdef PISTORM_ANY_MODEL
 
 void setup_serial()
 {
     of_node_t *e = NULL;
+    int async = 0;
 
     serial_up = 1;
 
@@ -434,12 +468,18 @@ void setup_serial()
             }
             else
                 fast_serial = 0;
+            
+            if (strstr(prop->op_value, "async_log")) {
+                async = 1;
+            }
         }
     }
 
-    q_buffer = tlsf_malloc(tlsf, Q_SIZE);
-    q_head = 0;
-    q_tail = 0;
+    if (async) {
+        q_buffer = tlsf_malloc(tlsf, Q_SIZE);
+        q_head = 0;
+        q_tail = 0;
+    }
 }
 
 #else
@@ -466,11 +506,11 @@ void setup_serial()
     /* Disable pull-ups and pull-downs on rs232 lines */
     wr32le(GPPUD, 0);
 
-    for (uartvar = 0; uartvar < 150; uartvar++) asm volatile ("nop");
+    for (uartvar = 0; uartvar < 150; uartvar++) __asm__ volatile ("nop");
 
     wr32le(GPPUDCLK0, (1 << 14)|(1 << 15));
 
-    for (uartvar = 0; uartvar < 150; uartvar++) asm volatile ("nop");
+    for (uartvar = 0; uartvar < 150; uartvar++) __asm__ volatile ("nop");
 
     wr32le(GPPUDCLK0, 0);
 
@@ -482,7 +522,7 @@ void setup_serial()
     wr32le(PL011_0_BASE + PL011_LCRH, PL011_LCRH_WLEN8|PL011_LCRH_FEN);           // 8N1, Fifo enabled
     wr32le(PL011_0_BASE + PL011_CR, PL011_CR_UARTEN|PL011_CR_TXE|PL011_CR_RXE);   // enable the uart, tx and rx
 
-    for (uartvar = 0; uartvar < 150; uartvar++) asm volatile ("nop");
+    for (uartvar = 0; uartvar < 150; uartvar++) __asm__ volatile ("nop");
 
     serial_up = 1;
 }
